@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CargoMatch – Share Empty Truck Space in the UK</title>
+  <meta name="description" content="CargoMatch connects UK businesses with empty truck capacity to businesses that need to ship goods.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=10">
+</head>
+<body>
+  <header class="topbar">
+    <a href="#/" class="brand" aria-label="CargoMatch home">
+      <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4f6bff"/>
+            <stop offset="1" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <rect width="40" height="40" rx="11" fill="url(#lg)"/>
+        <!-- route from origin to destination -->
+        <path d="M10 29 C 10 19, 20 23, 21 16 S 27 10, 30 10" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 4.6" opacity=".85"/>
+        <circle cx="10" cy="29" r="3.2" fill="#fff"/>
+        <!-- cargo box at destination -->
+        <rect x="25.5" y="6" width="9" height="9" rx="2" fill="#fff"/>
+        <path d="M25.5 9.8h9" stroke="#6150f5" stroke-width="1.6"/><rect x="28.6" y="6" width="2.8" height="3.8" fill="#6150f5" opacity=".55"/>
+      </svg>
+      <span>Cargo<span class="brand-accent">Match</span></span>
+    </a>
+    <nav class="nav">
+      <a href="#/sustainability" data-nav="sustainability" class="nav-eco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+        Sustainability
+      </a>
+      <a href="#/myrides" data-nav="myrides">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+        My Rides
+      </a>
+      <a href="#/bookings" data-nav="bookings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        My Bookings
+      </a>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- ============ HOME ============ -->
+    <section id="view-home" class="view">
+      <div class="hero">
+        <span class="eyebrow">Freight sharing across the UK</span>
+        <h1>Empty space on the road?<br><span class="grad-text">Turn it into revenue.</span></h1>
+        <p class="lead">CargoMatch connects businesses whose trucks travel empty across Great Britain
+          with businesses that need to move goods along the same route. Fewer empty miles, lower costs, lower emissions.</p>
+        <a href="#/sustainability" class="hero-eco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg><span><strong>30% of UK lorry kilometres run empty.</strong> Every shared load means one trip less on the road.</span><span class="hero-eco-arrow" aria-hidden="true">→</span></a>
+        <div class="choice-grid">
+          <a href="#/offer" class="choice-card">
+            <div class="choice-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+            </div>
+            <h2>Offer a Ride</h2>
+            <p>Your truck is driving a route with free capacity. Publish it and earn from the empty space.</p>
+            <span class="choice-link">Offer space <span aria-hidden="true">→</span></span>
+          </a>
+          <a href="#/find" class="choice-card">
+            <div class="choice-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+            </div>
+            <h2>Find a Ride</h2>
+            <p>You need to ship goods. Book space on a truck that's already travelling your route.</p>
+            <span class="choice-link">Search rides <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
+        <p class="note">Service area: England, Scotland, Wales and Northern Ireland only.</p>
+      </div>
+
+      <div class="stats-strip">
+        <div><strong>30%</strong><span>of UK lorry kilometres were driven empty in 2024 (DfT)</span></div>
+        <div><strong>3</strong><span>vehicle types, from 7.5 t trucks to 44 t articulated lorries</span></div>
+        <div><strong>Any UK postcode</strong><span>search by city, town, village or postcode</span></div>
+        <div><strong>Real routes</strong><span>road routes with HGV driving and arrival times</span></div>
+      </div>
+
+      <a href="#/sustainability" class="eco-teaser">
+        <div class="eco-teaser-num">30%</div>
+        <div class="eco-teaser-text">
+          <span class="eyebrow eco-eyebrow">Sustainability</span>
+          <h2>3 in 10 lorry kilometres in the UK carry nothing</h2>
+          <p>See why empty running is a climate problem and how load matching cuts CO₂ while earning hauliers money.</p>
+        </div>
+        <span class="eco-teaser-link">See our impact <span aria-hidden="true">→</span></span>
+      </a>
+
+      <section class="home-section">
+        <span class="eyebrow">How it works</span>
+        <h2>From empty miles to shared loads in three steps</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <h3>Publish your route</h3>
+            <p>Carriers enter where their truck is going, when it leaves and how much space is free.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <h3>Shippers find a match</h3>
+            <p>Businesses search by town or postcode and see every ride passing near them.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <h3>Book &amp; ship</h3>
+            <p>Book the space you need at the carrier's price – the total is calculated instantly.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-section">
+        <span class="eyebrow">Why CargoMatch</span>
+        <h2>Good for business, good for the road</h2>
+        <div class="benefits">
+          <div class="benefit benefit-blue">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <h3>Earn on every mile</h3>
+            <p>Carriers turn return journeys and part-loads into extra revenue instead of fuel costs.</p>
+          </div>
+          <div class="benefit benefit-violet">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>
+            <h3>Ship for less</h3>
+            <p>Shippers pay only for the space they use – no need to book a whole truck.</p>
+          </div>
+          <div class="benefit benefit-green">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg></div>
+            <h3>Cut emissions</h3>
+            <p>Fewer empty trucks on British roads means less CO₂ and less congestion.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-band">
+        <div>
+          <h2>Ready to fill your empty space?</h2>
+          <p>Publishing a ride takes less than two minutes.</p>
+        </div>
+        <div class="cta-actions">
+          <a href="#/offer" class="btn btn-light">Offer a ride</a>
+          <a href="#/find" class="btn btn-outline-light">Find a ride</a>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============ OFFER ============ -->
+    <section id="view-offer" class="view" hidden>
+      <a href="#/" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to start</span>
+      </a>
+      <div class="page-head">
+        <h1>Offer a Ride</h1>
+        <p>Publish a route your truck is driving with free capacity.</p>
+      </div>
+      <div class="two-col">
+        <form id="offer-form" class="card form" novalidate>
+          <fieldset>
+            <legend><span class="legend-num">1</span>Company</legend>
+            <label>Company name
+              <input name="company" required placeholder="e.g. Midlands Haulage Ltd">
+            </label>
+            <div class="row">
+              <label>Contact email
+                <input name="email" type="email" required placeholder="dispatch@company.co.uk">
+              </label>
+              <label>Phone (optional)
+                <input name="phone" type="tel" placeholder="+44 …">
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="legend-num">2</span>Route</legend>
+            <div class="row">
+              <label>From
+                <input name="from" required autocomplete="off" placeholder="City, town or postcode">
+                <span class="place-hint" data-hint="from"></span>
+              </label>
+              <label>To
+                <input name="to" required autocomplete="off" placeholder="City, town or postcode">
+                <span class="place-hint" data-hint="to"></span>
+              </label>
+            </div>
+            <div class="row">
+              <label>Departure date
+                <input name="date" type="date" required>
+              </label>
+              <label>Departure time
+                <input name="time" type="time" value="08:00" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="legend-num">3</span>Vehicle</legend>
+            <div class="vehicle-picker" id="vehicle-picker" role="radiogroup" aria-label="Vehicle type"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="legend-num">4</span>Free capacity &amp; price</legend>
+            <div class="row">
+              <label>Unit
+                <select name="unit">
+                  <option value="pallet">Pallets (EUR / UK)</option>
+                  <option value="m³">Cubic metres (m³)</option>
+                  <option value="kg">Kilograms (kg)</option>
+                </select>
+              </label>
+              <label>Available space
+                <input name="capacity" type="number" min="1" step="1" required placeholder="e.g. 12">
+              </label>
+            </div>
+            <div class="row">
+              <label>Price (£)
+                <input name="price" type="number" min="1" step="0.01" required placeholder="e.g. 45">
+              </label>
+              <label>per quantity of
+                <div class="input-suffix">
+                  <input name="priceQty" type="number" min="1" step="1" value="1" required>
+                  <span class="suffix" data-unit-label>pallet</span>
+                </div>
+              </label>
+            </div>
+            <p class="hint" id="price-preview"></p>
+            <label>Notes (optional)
+              <textarea name="notes" rows="2" placeholder="e.g. Tail-lift available, no hazardous goods"></textarea>
+            </label>
+          </fieldset>
+
+          <p class="form-error" id="offer-error" role="alert"></p>
+          <button type="submit" class="btn btn-primary btn-block">Publish ride</button>
+        </form>
+
+        <div class="card map-card sticky">
+          <div class="map-empty map" id="offer-map-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5" stroke-dasharray="2 3"/></svg>
+            <h3>Route preview</h3>
+            <p>Select a start and destination to see the route and driving time.</p>
+          </div>
+          <div id="offer-map" class="map" hidden></div>
+          <div class="route-strip" id="offer-route-info" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FIND ============ -->
+    <section id="view-find" class="view" hidden>
+      <a href="#/" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to start</span>
+      </a>
+      <div class="page-head">
+        <h1>Find a Ride</h1>
+        <p>Search trucks with free space on routes across Great Britain.</p>
+      </div>
+      <form id="search-form" class="card search">
+        <div class="search-main">
+          <label>From
+            <input name="from" autocomplete="off" placeholder="City, town or postcode">
+          </label>
+          <label>To
+            <input name="to" autocomplete="off" placeholder="City, town or postcode">
+          </label>
+          <button type="submit" class="btn btn-primary btn-search" id="search-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <span>Search</span>
+          </button>
+        </div>
+        <div class="search-more">
+        <label>Within
+          <select name="radius">
+            <option value="10">10 miles</option>
+            <option value="25" selected>25 miles</option>
+            <option value="50">50 miles</option>
+            <option value="100">100 miles</option>
+          </select>
+        </label>
+        <label>Vehicle
+          <select name="vehicle" id="vehicle-filter"></select>
+        </label>
+        <label>Earliest date
+          <input name="date" type="date">
+        </label>
+        <label>Min. space
+          <input name="minSpace" type="number" min="0" placeholder="any">
+        </label>
+        <label>Unit
+          <select name="unit">
+            <option value="">Any</option>
+            <option value="pallet">Pallets</option>
+            <option value="m³">m³</option>
+            <option value="kg">kg</option>
+          </select>
+        </label>
+        <div class="filter-actions">
+          <button type="reset" class="btn btn-ghost">Clear</button>
+        </div>
+        </div>
+        <p class="form-error search-error" id="search-error" role="alert"></p>
+      </form>
+
+      <p class="results-count" id="results-count"></p>
+      <ul id="ride-list" class="ride-list ride-grid"></ul>
+    </section>
+
+    <!-- ============ RIDE DETAILS ============ -->
+    <section id="view-ride" class="view" hidden>
+      <a href="#/find" class="back-link" id="ride-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to results</span>
+      </a>
+
+      <div id="ride-missing" class="empty card" hidden>This ride no longer exists. <a href="#/find">Browse all rides</a>.</div>
+
+      <div id="ride-detail" hidden>
+        <header class="detail-head">
+          <div>
+            <h1 id="ride-title"></h1>
+            <p id="ride-subtitle"></p>
+          </div>
+          <span class="status-pill" id="ride-status"></span>
+        </header>
+
+        <div class="detail-layout">
+          <div class="detail-main">
+            <div class="card map-card">
+              <div class="map-empty map" id="ride-map-empty" hidden></div>
+              <div id="ride-map" class="map"></div>
+              <div class="route-strip" id="ride-route-info"></div>
+            </div>
+
+            <div class="card detail-card">
+              <h2>Journey</h2>
+              <ol class="timeline" id="ride-timeline"></ol>
+            </div>
+
+            <div class="detail-grid">
+              <div class="card detail-card">
+                <h2>Vehicle &amp; space</h2>
+                <dl class="facts" id="ride-capacity"></dl>
+              </div>
+              <div class="card detail-card">
+                <h2>Carrier</h2>
+                <dl class="facts" id="ride-carrier"></dl>
+              </div>
+            </div>
+          </div>
+
+          <aside class="detail-side">
+            <div class="card book-card" id="book-panel">
+              <div class="book-price">
+                <span class="price" id="book-price"></span>
+                <span class="price-unit" id="book-price-unit"></span>
+              </div>
+              <form id="book-form" novalidate>
+                <label>Amount to ship
+                  <div class="input-suffix">
+                    <input name="amount" type="number" min="1" step="1" required>
+                    <span class="suffix" id="book-unit"></span>
+                  </div>
+                  <span class="place-hint" id="book-free"></span>
+                </label>
+                <label>Your company
+                  <input name="company" required placeholder="e.g. Northern Textiles plc">
+                </label>
+                <label>Contact email
+                  <input name="email" type="email" required placeholder="logistics@company.co.uk">
+                </label>
+                <label>Description of goods
+                  <input name="goods" placeholder="e.g. Boxed clothing, non-fragile">
+                </label>
+                <div class="total-row">
+                  <span>Total price</span>
+                  <strong id="book-total"></strong>
+                </div>
+                <p class="form-error" id="book-error" role="alert"></p>
+                <button type="submit" class="btn btn-primary btn-block">Book space</button>
+              </form>
+              <div id="book-full" class="book-full" hidden>This ride is fully booked.</div>
+              <div class="eco-note" id="book-eco"></div>
+            </div>
+            <div class="card book-card book-success" id="book-success" hidden></div>
+            <div class="card book-card owner-panel" id="owner-panel" hidden></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SUSTAINABILITY ============ -->
+    <section id="view-sustainability" class="view" hidden>
+      <a href="#/" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to start</span>
+      </a>
+      <div class="page-head">
+        <span class="eyebrow eco-eyebrow">Sustainability</span>
+        <h1>Every empty mile is wasted fuel.</h1>
+        <p>Why empty lorries are a climate problem in the UK – and how CargoMatch helps fill them.</p>
+      </div>
+
+      <!-- 1. The problem -->
+      <div class="card eco-hero">
+        <div class="eco-hero-text">
+          <span class="eco-kicker">The problem</span>
+          <div class="eco-big">30%</div>
+          <p class="eco-big-label">of all lorry kilometres in the UK were driven <strong>completely empty</strong> in 2024.</p>
+          <p class="eco-sub">That is <strong>5,843 million km</strong> out of 19.4 billion km in total. The share was also 30% in 2023: this is a structural problem, not a temporary one.</p>
+          <p class="eco-source">Source: DfT, Domestic road freight statistics 2024 <sup>[1]</sup></p>
+        </div>
+        <figure class="fleet" aria-label="Of every 10 lorry kilometres, 3 are driven empty">
+          <div class="fleet-grid" id="fleet-grid"></div>
+          <figcaption><span class="fleet-key is-loaded"></span>Loaded <span class="fleet-key is-empty"></span>Empty · 3 in every 10 lorry km carry nothing</figcaption>
+        </figure>
+      </div>
+
+      <!-- 2. Climate relevance -->
+      <section class="eco-section">
+        <h2>Why it matters for the climate</h2>
+        <p class="eco-intro">Transport is the UK's largest source of greenhouse gas emissions – and freight vehicles are a big part of it.</p>
+        <div class="eco-stats">
+          <div class="eco-stat">
+            <strong>30%</strong>
+            <span>of UK domestic greenhouse gas emissions come from transport (110.4 Mt CO₂e in 2024), the largest sector since 2014.</span>
+            <small>[2]</small>
+          </div>
+          <div class="eco-stat">
+            <strong>18.4 Mt</strong>
+            <span>CO₂e from lorries (HGVs) – 17% of all transport emissions.</span>
+            <small>[2]</small>
+          </div>
+          <div class="eco-stat">
+            <strong>18.6 Mt</strong>
+            <span>CO₂e from vans – another 17%. Van emissions have risen by around <b>65% since 1990</b>.</span>
+            <small>[2]</small>
+          </div>
+          <div class="eco-stat">
+            <strong>1% → 16%</strong>
+            <span>Lorries are only about 1% of registered vehicles but cause 16% of transport emissions (2023).</span>
+            <small>[3]</small>
+          </div>
+        </div>
+
+        <div class="card eco-chart" role="img" aria-label="Change in greenhouse gas emissions since 1990: UK total down 53 percent, transport down 11 percent">
+          <div class="eco-chart-head">
+            <h3>Change in emissions since 1990</h3>
+            <p>Transport is falling far behind the rest of the UK economy.</p>
+          </div>
+          <div class="hbar" title="UK total emissions: −53% since 1990">
+            <span class="hbar-label">All UK emissions</span>
+            <div class="hbar-track"><div class="hbar-fill muted" style="--w: 53%"></div></div>
+            <span class="hbar-value">−53%</span>
+          </div>
+          <div class="hbar" title="Transport emissions: −11% since 1990">
+            <span class="hbar-label">Transport</span>
+            <div class="hbar-track"><div class="hbar-fill accent" style="--w: 11%"></div></div>
+            <span class="hbar-value">−11%</span>
+          </div>
+          <p class="eco-source">Source: DfT, Greenhouse gas emissions from transport in 2024 <sup>[2]</sup></p>
+        </div>
+      </section>
+
+      <!-- 3. Empty trucks still emit -->
+      <section class="eco-section">
+        <h2>Empty lorries still burn fuel</h2>
+        <p class="eco-intro">A lorry driving with 0% load still causes most of the emissions of a loaded trip – while transporting nothing.</p>
+        <div class="eco-factors">
+          <div class="card eco-factor">
+            <svg class="vehicle-icon" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="9" width="23" height="12" rx="1.5"/><path d="M35 21v-9h7l5 5v4z"/><circle cx="18" cy="24" r="3"/><circle cx="41" cy="24" r="3"/></svg>
+            <div>
+              <span class="eco-factor-name">Rigid lorry 3.5–7.5 t, empty</span>
+              <strong>0.74 <small>kg CO₂e per mile</small></strong>
+            </div>
+          </div>
+          <div class="card eco-factor">
+            <svg class="vehicle-icon" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="37" height="15" rx="1.5"/><path d="M42 21V10h9l6 6v5z"/><path d="M51 10v6h6"/><circle cx="10" cy="24" r="3"/><circle cx="18" cy="24" r="3"/><circle cx="33" cy="24" r="3"/><circle cx="50" cy="24" r="3"/></svg>
+            <div>
+              <span class="eco-factor-name">Articulated lorry (refrigerated), empty</span>
+              <strong>1.17 <small>kg CO₂e per mile</small></strong>
+            </div>
+          </div>
+          <div class="eco-example">
+            <span class="eco-tag">Example</span>
+            <p>A single <strong>200-mile empty return trip</strong> in an articulated lorry produces about <strong>234 kg CO₂e</strong> – for zero cargo.</p>
+            <small>Our calculation: 200 miles × 1.17 kg CO₂e/mile.</small>
+          </div>
+        </div>
+        <p class="eco-source">Source: DESNZ greenhouse gas conversion factors 2025, diesel HGVs at 0% load <sup>[4][5]</sup></p>
+      </section>
+
+      <!-- 5. Potential -->
+      <section class="eco-section">
+        <h2>The potential <span class="eco-h2-tag">Try it yourself</span></h2>
+        <div class="card eco-potential">
+          <div class="eco-potential-text">
+            <span class="eco-tag violet">Our own estimate</span>
+            <p>Empty running by UK lorries causes roughly <strong>2.7 – 4.2 million tonnes CO₂e per year</strong>, about <strong>15–23%</strong> of all lorry emissions.</p>
+            <p class="eco-method">Method: 5,843 million empty km × 0.46–0.73 kg CO₂e/km (the empty-lorry factors above, converted to km).</p>
+          </div>
+          <div class="eco-calc is-idle" id="eco-calc">
+            <div class="eco-try">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M3 12h18"/></svg>
+              <span>Drag the slider to see the impact</span>
+            </div>
+            <label for="eco-slider">If CargoMatch filled <strong id="eco-pct">1%</strong> of UK empty lorry kilometres…</label>
+            <input type="range" id="eco-slider" min="0.1" max="10" step="0.1" value="1">
+            <div class="eco-calc-scale"><span>0.1%</span><span>10%</span></div>
+            <div class="eco-calc-result">
+              <div><span>Empty km filled</span><strong id="eco-km">58 million</strong></div>
+              <div><span>CO₂e avoided per year</span><strong id="eco-co2">27,000 – 42,700 t</strong></div>
+            </div>
+            <small>Illustrative scenario based on the estimate above – not a forecast.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="eco-section">
+        <div class="card eco-method-card">
+          <div class="eco-method-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg></div>
+          <div>
+            <h3>How we estimate “CO₂e saved” on each ride</h3>
+            <p>Every ride on CargoMatch shows an estimated CO₂e saving. It assumes that each shipment travelling on an existing ride replaces <strong>one separate trip</strong> of the same distance that would otherwise be needed. We use the lowest official factor above – a small 3.5–7.5 t lorry, <strong>0.74 kg CO₂e per mile</strong> – so the figure is deliberately conservative.</p>
+            <p class="eco-method">Example: a 290-mile ride → 290 × 0.74 ≈ 215 kg CO₂e per shipment. This is an estimate, not a measured value.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. How we help -->
+      <section class="eco-section">
+        <h2>How CargoMatch helps</h2>
+        <div class="eco-how">
+          <div class="eco-how-item">
+            <div class="benefit-icon" style="background:#10b981"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></div>
+            <h3>Fill return journeys</h3>
+            <p>Carriers publish trips that would otherwise run empty, so the fuel is already being burnt for a reason.</p>
+          </div>
+          <div class="eco-how-item">
+            <div class="benefit-icon" style="background:#4f6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div>
+            <h3>Replace extra trips</h3>
+            <p>Goods that ride along on an existing trip do not need their own vehicle – that is where the real saving comes from.</p>
+          </div>
+          <div class="eco-how-item">
+            <div class="benefit-icon" style="background:#7c3aed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></div>
+            <h3>Built for lorries</h3>
+            <p>From 7.5 t trucks to 44 t articulated lorries – HGVs are only about 1% of vehicles but cause 16–17% of transport emissions.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Limits -->
+      <section class="eco-section">
+        <div class="card eco-limits">
+          <h2>Being honest about the limits</h2>
+          <ul>
+            <li><strong>Not every empty trip can be avoided.</strong> Specialised vehicles such as tankers or refrigerated lorries can only carry certain goods.</li>
+            <li><strong>Freight flows are unbalanced.</strong> Some regions send out far more goods than they receive, so return trips are harder to fill.</li>
+            <li><strong>The saving is the trip that no longer happens.</strong> Filling an empty lorry only cuts emissions because the goods would otherwise travel in a separate vehicle.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Sources -->
+      <section class="eco-section eco-sources">
+        <h3>Sources</h3>
+        <ol>
+          <li><a href="https://www.gov.uk/government/statistics/road-freight-statistics-2024/domestic-road-freight-statistics-united-kingdom-2024" target="_blank" rel="noopener">DfT – Domestic road freight statistics, United Kingdom 2024</a></li>
+          <li><a href="https://www.gov.uk/government/statistics/transport-and-environment-statistics-2024--2/greenhouse-gas-emissions-from-transport-in-2024" target="_blank" rel="noopener">DfT – Greenhouse gas emissions from transport in 2024</a></li>
+          <li><a href="https://assets.publishing.service.gov.uk/media/6983430d13622473b51ca9db/new_hgv_co2_emissions_regulatory_framework_for_UK.pdf" target="_blank" rel="noopener">DfT – Consultation on a new HGV CO₂ emissions regulatory framework (Jan 2026)</a></li>
+          <li><a href="https://www.climatiq.io/data/emission-factor/265aae45-d186-43b2-a1c4-d49c27c1eec5" target="_blank" rel="noopener">DESNZ conversion factors 2025 – Rigid HGV 3.5–7.5 t, 0% laden (via Climatiq)</a></li>
+          <li><a href="https://www.climatiq.io/data/emission-factor/e0e7e100-0b72-41d9-a4fe-53be8b671c08" target="_blank" rel="noopener">DESNZ conversion factors 2025 – Articulated HGV, 0% laden (via Climatiq)</a></li>
+        </ol>
+      </section>
+    </section>
+
+    <!-- ============ MY RIDES ============ -->
+    <section id="view-myrides" class="view" hidden>
+      <a href="#/" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to start</span>
+      </a>
+      <div class="page-head">
+        <h1>My Rides</h1>
+        <p>Track the rides you have published – bookings, revenue and where each ride stands.</p>
+      </div>
+      <div class="myrides-summary" id="myrides-summary"></div>
+      <ul id="myrides-list" class="myrides-list"></ul>
+    </section>
+
+    <!-- ============ BOOKINGS ============ -->
+    <section id="view-bookings" class="view" hidden>
+      <a href="#/" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to start</span>
+      </a>
+      <div class="page-head">
+        <h1>My Bookings</h1>
+        <p>Space you have booked on other companies' trucks.</p>
+      </div>
+      <a href="#/sustainability" class="eco-summary" id="eco-summary" hidden></a>
+      <ul id="booking-list" class="ride-list"></ul>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="url(#lg)"/><path d="M10 29 C 10 19, 20 23, 21 16 S 27 10, 30 10" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 4.6" opacity=".85"/><circle cx="10" cy="29" r="3.2" fill="#fff"/><rect x="25.5" y="6" width="9" height="9" rx="2" fill="#fff"/></svg>
+      <span>Cargo<span class="brand-accent">Match</span></span>
+    </div>
+    <nav class="footer-links"><a href="#/">Home</a><a href="#/sustainability">Sustainability</a><a href="#/myrides">My Rides</a><a href="#/bookings">My Bookings</a></nav>
+    CargoMatch · University project prototype · Data is stored locally in your browser.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="data.js?v=10"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>
