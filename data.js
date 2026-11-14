@@ -210,3 +210,42 @@ function buildOwnDemoRides() {
     { ...carrier, from: "Leeds", to: "Cardiff", date: day(6), time: "06:15", vehicle: "rigid", unit: "m³", capacity: 30, price: 50, priceQty: 5, notes: "Curtain-sider, side loading.", bookings: [] },
   ];
 }
+
+// ---------- Demo bookings you made as a shipper (shown under My Bookings) ----------
+// One completed (to rate), one on the road (live tracking) and one upcoming (chat).
+// `ride` creates a new ride; `rideRef` books onto an existing demo ride.
+// Messages: from "me" (you) or "them" (the carrier); `ago` in minutes before now.
+function buildMyDemoBookings() {
+  const day = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.toISOString().slice(0, 10);
+  };
+  const left = new Date(Date.now() - 90 * 60 * 1000); // departed 90 minutes ago
+  const pad = (n) => String(n).padStart(2, "0");
+  const me = { company: "Albion Haulage Ltd", email: "dispatch@albionhaulage.co.uk" };
+  return [
+    {
+      ride: { company: "Midlands Haulage Ltd", email: "dispatch@midlandshaulage.co.uk", phone: "01632 960101", from: "Birmingham", to: "Leeds", date: day(-6), time: "08:00", vehicle: "artic", unit: "pallet", capacity: 20, price: 36, priceQty: 1, notes: "", otherBooked: 9 },
+      booking: { ...me, goods: "Spare parts", amount: 4 },
+      messages: [
+        { from: "me", text: "Hi, could you collect from our Birmingham depot at 07:30?", ago: 60 * 24 * 7 },
+        { from: "them", text: "Yes, 07:30 works for us. The driver will call 15 minutes before arrival.", ago: 60 * 24 * 7 - 20 },
+        { from: "them", text: "Delivered in Leeds at 10:55 – signed for by your colleague. Thanks!", ago: 60 * 24 * 6 - 180 },
+      ],
+    },
+    {
+      ride: { company: "Northern Freight Lines", email: "bookings@northernfreight.co.uk", phone: "01632 960214", from: "Manchester", to: "Glasgow", date: `${left.getFullYear()}-${pad(left.getMonth() + 1)}-${pad(left.getDate())}`, time: `${pad(left.getHours())}:${pad(left.getMinutes())}`, vehicle: "artic", unit: "pallet", capacity: 16, price: 40, priceQty: 1, notes: "", otherBooked: 6 },
+      booking: { ...me, goods: "Packaging materials", amount: 3 },
+      messages: [
+        { from: "me", text: "Morning! Are we still on time for the pick-up?", ago: 150 },
+        { from: "them", text: "Yes – loading now, we leave in about an hour. You can follow the truck live once it's on the road.", ago: 140 },
+      ],
+    },
+    {
+      rideRef: { email: "ops@penninelogistics.co.uk", from: "Leeds", to: "Bristol" },
+      booking: { ...me, goods: "Office furniture", amount: 2 },
+      messages: [{ from: "them", text: "Thanks for your booking! Do you need a tail-lift at the delivery address?", ago: 45 }],
+    },
+  ];
+}

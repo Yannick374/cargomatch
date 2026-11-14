@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <header class="topbar">
@@ -609,6 +609,83 @@
     </section>
   </main>
 
+  <!-- Chat between shipper and carrier -->
+  <dialog id="chat-dialog" class="dialog chat-dialog" aria-labelledby="chat-title">
+    <div class="chat-head">
+      <span id="chat-avatar"></span>
+      <div class="chat-head-text">
+        <strong id="chat-title"></strong>
+        <span id="chat-sub"></span>
+      </div>
+      <button type="button" class="icon-btn" id="chat-close" aria-label="Close chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="chat-body" id="chat-body" aria-live="polite"></div>
+    <form class="chat-input" id="chat-form" autocomplete="off">
+      <input name="text" placeholder="Write a message…" aria-label="Message" maxlength="500">
+      <button type="submit" class="btn btn-primary btn-sm" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </form>
+  </dialog>
+
+  <!-- Rating after a completed delivery -->
+  <dialog id="rate-dialog" class="dialog rate-dialog" aria-labelledby="rate-title">
+    <form id="rate-form" novalidate>
+      <h2 id="rate-title">How did it go?</h2>
+      <p class="rate-intro" id="rate-intro"></p>
+      <div class="rate-block">
+        <span class="rate-label">Rate the carrier <strong id="rate-carrier-name"></strong></span>
+        <div class="stars" data-stars="carrier" role="radiogroup" aria-label="Carrier rating"></div>
+      </div>
+      <div class="rate-block">
+        <span class="rate-label">Rate the CargoMatch service</span>
+        <div class="stars" data-stars="service" role="radiogroup" aria-label="CargoMatch service rating"></div>
+      </div>
+      <label>Comment about the carrier (optional)
+        <textarea name="carrierComment" rows="2" placeholder="e.g. On time, friendly driver, goods arrived safely"></textarea>
+      </label>
+      <label>Is there anything we could improve?
+        <textarea name="improve" rows="3" placeholder="Tell us what would make CargoMatch better for you"></textarea>
+      </label>
+      <p class="form-error" id="rate-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="rate-cancel">Later</button>
+        <button type="submit" class="btn btn-primary">Submit rating</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Help assistant (FAQ chatbot) -->
+  <div class="assistant" id="assistant">
+    <section class="assistant-panel" id="assistant-panel" hidden aria-label="CargoMatch help assistant">
+      <div class="assistant-head">
+        <div class="assistant-bot-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16.5h5"/></svg>
+        </div>
+        <div>
+          <strong>CargoMatch Assistant</strong>
+          <span>Answers to common questions</span>
+        </div>
+        <button type="button" class="icon-btn" id="assistant-close" aria-label="Close assistant">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="assistant-body" id="assistant-body" aria-live="polite"></div>
+      <form class="chat-input" id="assistant-form" autocomplete="off">
+        <input name="text" placeholder="Ask a question…" aria-label="Your question" maxlength="300">
+        <button type="submit" class="btn btn-primary btn-sm" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </form>
+    </section>
+    <button type="button" class="assistant-fab" id="assistant-toggle" aria-label="Open help assistant" aria-expanded="false" aria-controls="assistant-panel">
+      <svg class="fab-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>
+      <svg class="fab-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <footer class="footer">
@@ -621,7 +698,8 @@
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="data.js?v=10"></script>
-  <script src="app.js?v=10"></script>
+  <script src="data.js?v=12"></script>
+  <script src="app.js?v=12"></script>
+  <script src="features.js?v=12"></script>
 </body>
 </html>

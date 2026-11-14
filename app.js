@@ -24,7 +24,7 @@ function loadState() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) s = JSON.parse(raw);
   } catch (e) { /* storage unavailable – fall back to seed */ }
-  const SEED_VERSION = 4;
+  const SEED_VERSION = 5;
   const seed = () => buildSeedRides().map((r) => ({ ...r, id: uid(), booked: r.booked || 0, createdAt: Date.now() }));
   if (!s) s = { rides: [], bookings: [], seedVersion: 1 };
   // Add demo rides introduced in later versions to data saved by an earlier version.
@@ -45,10 +45,33 @@ function loadState() {
         s.bookings.push({ ...b, id: uid(), rideId: id, total: (ride.price / ride.priceQty) * b.amount, received: true, createdAt: created + (i + 1) * 3600000 })
       );
     }
+    // Demo bookings you made as a shipper, with their chat history
+    s.messages = s.messages || [];
+    for (const demo of buildMyDemoBookings()) {
+      let ride;
+      if (demo.ride) {
+        const { otherBooked, ...r } = demo.ride;
+        if (known.has(rideKey(r))) continue;
+        ride = { ...r, id: uid(), booked: otherBooked, createdAt: new Date(`${r.date}T00:00`).getTime() - 4 * 86400000 };
+        s.rides.push(ride);
+      } else {
+        const ref = demo.rideRef;
+        ride = s.rides.find((r) => r.email === ref.email && placeName(r.from) === ref.from && placeName(r.to) === ref.to);
+        if (!ride || ride.capacity - ride.booked < demo.booking.amount) continue;
+        if (s.bookings.some((b) => b.rideId === ride.id && b.email === demo.booking.email)) continue;
+      }
+      const b = demo.booking;
+      const firstMsg = Math.max(...demo.messages.map((m) => m.ago), 60);
+      const booking = { ...b, id: uid(), rideId: ride.id, total: (ride.price / ride.priceQty) * b.amount, createdAt: Date.now() - (firstMsg + 30) * 60000 };
+      ride.booked += b.amount;
+      s.bookings.push(booking);
+      demo.messages.forEach((m) => s.messages.push({ id: uid(), bookingId: booking.id, from: m.from, text: m.text, at: Date.now() - m.ago * 60000 }));
+    }
     s.seedVersion = SEED_VERSION;
     // Persist immediately so the new rides keep stable IDs (and links) across reloads
     try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ }
   }
+  s.messages = s.messages || [];
   s.rides = s.rides
     .map((r) => {
       const v = { ...r, ...(LEGACY_VEHICLES[r.vehicle] || {}), from: toPlace(r.from), to: toPlace(r.to) };
@@ -482,6 +505,8 @@ class RouteMap {
     const loading = !info.coords && info.estimated;
 
     this.layer.clearLayers();
+    this.coords = coords;
+    this.coordsAreRoad = !!info.coords;
     L.polyline(coords, { color: "#fff", weight: 9, opacity: 0.9 }).addTo(this.layer);
     const line = L.polyline(coords, {
       color: "#4f6bff",
@@ -508,6 +533,7 @@ class RouteMap {
         ${ride.time ? `<div><span>Arrival</span><strong>${loading ? "–" : arrivalTime(ride.time, info.minutes)}</strong></div>` : ""}
       </div>
       <p class="route-note">Estimated HGV driving time incl. legal rest breaks for arrival. Actual times depend on traffic.</p>`;
+    if (this.onDraw) this.onDraw();
   }
 }
 
@@ -525,6 +551,7 @@ function route() {
     view === "ride" ? (rideBackTarget.startsWith("#/bookings") ? "bookings" : rideBackTarget.startsWith("#/myrides") ? "myrides" : "find") : view;
   document.querySelectorAll("[data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === navKey));
   window.scrollTo(0, 0);
+  if (view !== "ride" && typeof stopTracking === "function") stopTracking();
 
   if (view === "offer") initOffer();
   if (view === "find") initFind();
@@ -901,6 +928,7 @@ function renderRideDetail(id) {
   renderRideFacts(r);
   rideMap.show(r).then(() => currentRide === r && renderRideFacts(r));
   resetBookingPanel(r);
+  if (typeof startTracking === "function") startTracking(r);
 
   // Your own ride: show its status instead of a booking form
   const owner = $("#owner-panel");
@@ -988,8 +1016,16 @@ function resetBookingPanel(r) {
   $("#book-free").textContent = `${free} ${unitLabel(r.unit, free)} available`;
   form.amount.max = free;
   form.amount.value = Math.min(free, r.unit === "pallet" ? 1 : r.priceQty) || "";
-  form.hidden = free === 0;
-  $("#book-full").hidden = free !== 0;
+  // No new bookings once the lorry has left (or the ride was withdrawn)
+  const closed = ["onroad", "completed", "cancelled"].includes(rideStatus(r).key);
+  form.hidden = free === 0 || closed;
+  $("#book-full").hidden = !form.hidden;
+  $("#book-eco").hidden = closed;
+  $("#book-full").textContent = closed
+    ? rideStatus(r).key === "cancelled"
+      ? "This ride was withdrawn by the carrier."
+      : "This ride has already departed – booking is closed."
+    : "This ride is fully booked.";
   updateBookingTotal();
 }
 
@@ -1040,6 +1076,7 @@ $("#book-form").addEventListener("submit", (e) => {
     <div class="eco-note">${leafIcon}<span>You avoided a separate trip – about <strong>${fmtKg(booking.co2)} CO₂e</strong> saved.</span></div>
     <p class="hint">The carrier ${escapeHtml(r.company)} will contact you at ${escapeHtml(booking.email)}.</p>
     <a href="#/bookings" class="btn btn-primary btn-block">View my bookings</a>
+    <button type="button" class="btn btn-ghost btn-block" data-chat="${booking.id}">Message the carrier</button>
     <button type="button" class="btn btn-ghost btn-block" id="book-again">Book more space</button>`;
   $("#book-again").addEventListener("click", () => resetBookingPanel(r));
 });
@@ -1139,7 +1176,7 @@ function renderMyRides() {
             rb.length
               ? `<ul>${rb
                   .map(
-                    (b) => `<li>${companyAvatar(b.company)}<div><strong>${escapeHtml(b.company)}</strong><span>${b.amount} ${unitLabel(r.unit, b.amount)}${b.goods ? " · " + escapeHtml(b.goods) : ""} · <a href="mailto:${escapeHtml(b.email)}">${escapeHtml(b.email)}</a></span></div><b>${money(b.total)}</b></li>`
+                    (b) => `<li>${companyAvatar(b.company)}<div><strong>${escapeHtml(b.company)}</strong><span>${b.amount} ${unitLabel(r.unit, b.amount)}${b.goods ? " · " + escapeHtml(b.goods) : ""} · <a href="mailto:${escapeHtml(b.email)}">${escapeHtml(b.email)}</a></span></div><b>${money(b.total)}</b><button type="button" class="btn btn-ghost btn-sm" data-chat="${b.id}">${typeof chatButtonLabel === "function" ? chatButtonLabel(b, "Message") : "Message"}</button></li>`
                   )
                   .join("")}</ul>`
               : `<p>No bookings yet. Your ride is visible to shippers searching along this route.</p>`
@@ -1217,8 +1254,9 @@ function renderBookings() {
         <div class="ride-side">
           <div class="price">${money(b.total)}</div>
           <div class="price-unit">${b.amount} ${unitLabel(r.unit, b.amount)}</div>
-          <button class="btn btn-ghost btn-sm" data-cancel="${b.id}">Cancel</button>
+          ${typeof bookingStatusPill === "function" ? bookingStatusPill(r) : statusPill(r)}
         </div>
+        ${typeof bookingActions === "function" ? bookingActions(b, r) : ""}
       </li>`;
     })
     .join("");
@@ -1270,4 +1308,5 @@ function initSustainability() {
 
 // ---------- Boot ----------
 window.addEventListener("hashchange", route);
-route();
+// Run after every script (incl. features.js) has loaded
+document.addEventListener("DOMContentLoaded", route);
